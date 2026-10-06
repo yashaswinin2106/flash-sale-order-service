@@ -11,6 +11,7 @@ import com.flashsale.order.exception.ReservationAlreadyUsedException;
 import com.flashsale.order.exception.ReservationExpiredException;
 import com.flashsale.order.exception.SaleNotOpenException;
 import com.flashsale.order.exception.SoldOutException;
+import com.flashsale.order.kafka.OrderEventPublisher;
 import com.flashsale.order.redis.ClaimResult;
 import com.flashsale.order.redis.ReservationStore;
 import com.flashsale.order.repository.OrderRepository;
@@ -37,17 +38,20 @@ public class OrderService {
     private final OrderRepository orders;
     private final StockService stockService;
     private final ReservationStore reservations;
+    private final OrderEventPublisher events;
     private final TransactionTemplate tx;
     private final JdbcTemplate jdbc;
     private final boolean reservationsEnabled;
 
     public OrderService(ProductService productService, OrderRepository orders, StockService stockService,
-                        ReservationStore reservations, TransactionTemplate tx, JdbcTemplate jdbc,
+                        ReservationStore reservations, OrderEventPublisher events,
+                        TransactionTemplate tx, JdbcTemplate jdbc,
                         @Value("${flashsale.reservations.enabled:true}") boolean reservationsEnabled) {
         this.productService = productService;
         this.orders = orders;
         this.stockService = stockService;
         this.reservations = reservations;
+        this.events = events;
         this.tx = tx;
         this.jdbc = jdbc;
         this.reservationsEnabled = reservationsEnabled;
@@ -60,20 +64,26 @@ public class OrderService {
      * retry always sees the first request's order instead of racing it for the reservation.
      * UNIQUE (user_id, idempotency_key) stays as the backstop: if it fires, the transaction rolls back,
      * including the stock decrement, and the existing order is returned.
+     * <p>
+     * A new order is saved as PENDING_PAYMENT and order.created is published after the commit.
      */
     public Order placeOrder(String userId, String idempotencyKey, PlaceOrderRequest request) {
         validate(request);
         AtomicReference<ClaimResult> claimed = new AtomicReference<>();
+        AtomicReference<Order> created = new AtomicReference<>();
+        Order order;
         try {
-            return tx.execute(status -> {
+            order = tx.execute(status -> {
                 lockIdempotencyKey(userId, idempotencyKey);
                 Optional<Order> existing = orders.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
                 if (existing.isPresent()) {
                     return replay(existing.get(), request);
                 }
-                return reservationsEnabled
+                Order saved = reservationsEnabled
                         ? orderFromReservation(userId, idempotencyKey, request.reservationId(), claimed)
                         : directOrder(userId, idempotencyKey, request.productId());
+                created.set(saved);
+                return saved;
             });
         } catch (RuntimeException e) {
             ClaimResult claim = claimed.get();
@@ -90,6 +100,10 @@ public class OrderService {
             }
             throw e;
         }
+        if (created.get() != null) {
+            events.publishOrderCreated(order);
+        }
+        return order;
     }
 
     private void validate(PlaceOrderRequest request) {
@@ -133,7 +147,7 @@ public class OrderService {
         }
         Order order = new Order(userId, product.getId(), quantity,
                 product.getPrice().multiply(BigDecimal.valueOf(quantity)),
-                OrderStatus.CONFIRMED, idempotencyKey, reservationId);
+                OrderStatus.PENDING_PAYMENT, idempotencyKey, reservationId);
         return orders.saveAndFlush(order);
     }
 

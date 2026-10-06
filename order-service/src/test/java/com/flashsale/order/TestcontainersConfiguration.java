@@ -7,12 +7,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Starts Postgres and Redis once per test JVM. Every Spring test context shares them, and they are
+ * Starts Postgres, Redis and Kafka once per test JVM. Every Spring test context shares them, and they are
  * not Spring beans, so closing one context does not stop the containers under the others.
  */
 @TestConfiguration(proxyBeanMethods = false)
@@ -23,8 +24,10 @@ public class TestcontainersConfiguration {
 	static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7"))
 			.withExposedPorts(6379);
 
+	static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:4.1.0"));
+
 	static {
-		Startables.deepStart(POSTGRES, REDIS).join();
+		Startables.deepStart(POSTGRES, REDIS, KAFKA).join();
 	}
 
 	@Bean
@@ -35,7 +38,12 @@ public class TestcontainersConfiguration {
 			registry.add("spring.datasource.password", POSTGRES::getPassword);
 			registry.add("spring.data.redis.host", REDIS::getHost);
 			registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
+			registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
 		};
+	}
+
+	public static String kafkaBootstrapServers() {
+		return KAFKA.getBootstrapServers();
 	}
 
 	@Bean

@@ -24,8 +24,9 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    /** 202 because payment happens afterwards; poll GET /orders/{id} for CONFIRMED or FAILED. */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public OrderResponse placeOrder(@RequestHeader("X-User-Id") String userId,
                                     @RequestHeader("Idempotency-Key") String idempotencyKey,
                                     @RequestBody PlaceOrderRequest request) {

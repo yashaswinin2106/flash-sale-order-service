@@ -54,7 +54,7 @@ class OrderControllerTest {
     @Test
     void placesAndFetchesAnOrder() throws Exception {
         HttpResponse<String> created = placeOrder("user-1", UUID.randomUUID().toString(), PRODUCT_ID);
-        assertThat(created.statusCode()).isEqualTo(201);
+        assertThat(created.statusCode()).isEqualTo(202);
 
         String id = orderId(created);
         HttpResponse<String> fetched = http.get("/api/v1/orders/" + id, Map.of("X-User-Id", "user-1"));

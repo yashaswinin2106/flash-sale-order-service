@@ -73,7 +73,7 @@ class ReservationFlowTest {
         HttpResponse<String> ordered = order("user-1", UUID.randomUUID().toString(),
                 Json.field(reserved.body(), "reservationId"));
 
-        assertThat(ordered.statusCode()).isEqualTo(201);
+        assertThat(ordered.statusCode()).isEqualTo(202);
         assertThat(data.availableStock(PRODUCT_ID)).isEqualTo(99);
         assertThat(data.redisStock(PRODUCT_ID)).isEqualTo(99);
         assertThat(data.openReservations()).isZero();
@@ -113,7 +113,7 @@ class ReservationFlowTest {
 
         List<Object> results = Concurrently.run(50, i -> () -> order("user-1", key, reservationId));
 
-        assertThat(results).allMatch(r -> r instanceof HttpResponse<?> res && res.statusCode() == 201);
+        assertThat(results).allMatch(r -> r instanceof HttpResponse<?> res && res.statusCode() == 202);
         assertThat(results.stream().map(r -> Json.field(((HttpResponse<String>) r).body(), "orderId")).distinct())
                 .hasSize(1);
         assertThat(data.orderCount()).isEqualTo(1);

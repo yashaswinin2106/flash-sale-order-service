@@ -102,8 +102,8 @@ class ReservationExpiryTest {
                 Thread.sleep(wait.toMillis());
             }
             int status = order("race-user-" + i, Json.field(reserved.body(), "reservationId")).statusCode();
-            assertThat(status).isIn(201, 410);
-            if (status == 201) {
+            assertThat(status).isIn(202, 410);
+            if (status == 202) {
                 ordered++;
             } else {
                 expired++;
