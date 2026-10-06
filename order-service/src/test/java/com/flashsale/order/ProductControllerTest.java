@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -24,13 +23,13 @@ class ProductControllerTest {
     int port;
 
     @Autowired
-    JdbcTemplate jdbc;
+    TestData data;
 
     private final HttpClient http = HttpClient.newHttpClient();
 
     @BeforeEach
     void resetData() {
-        new TestData(jdbc).reset();
+        data.reset();
     }
 
     private HttpResponse<String> get(String path) throws Exception {

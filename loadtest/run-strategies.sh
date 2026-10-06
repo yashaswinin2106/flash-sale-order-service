@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs direct-order.js once per stock strategy and saves the k6 summaries in results/.
+# Runs direct-order.js (reservations off) once per stock strategy and saves the k6 summaries in results/.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -19,7 +19,7 @@ wait_for_service() {
 
 for strategy in ${STRATEGIES:-NAIVE PESSIMISTIC ATOMIC OPTIMISTIC}; do
   echo "=== $strategy ==="
-  STOCK_STRATEGY="$strategy" docker compose up -d --force-recreate order-service
+  RESERVATIONS_ENABLED=false STOCK_STRATEGY="$strategy" docker compose up -d --force-recreate order-service
   wait_for_service
 
   # Warm-up pass so the JIT and connection pool are ready before the measured run.

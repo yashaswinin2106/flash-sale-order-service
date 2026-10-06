@@ -2,6 +2,7 @@ package com.flashsale.order;
 
 import com.flashsale.order.domain.Order;
 import com.flashsale.order.exception.IdempotencyKeyReusedException;
+import com.flashsale.order.controller.PlaceOrderRequest;
 import com.flashsale.order.service.OrderService;
 import com.flashsale.order.support.Concurrently;
 import com.flashsale.order.support.TestData;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Set;
@@ -22,20 +22,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(properties = "flashsale.reservations.enabled=false")
 class IdempotencyTest {
 
     @Autowired
     OrderService orderService;
 
     @Autowired
-    JdbcTemplate jdbc;
-
     TestData data;
 
     @BeforeEach
     void setUp() {
-        data = new TestData(jdbc);
         data.reset();
     }
 
@@ -44,7 +41,7 @@ class IdempotencyTest {
         String key = UUID.randomUUID().toString();
 
         List<Object> results = Concurrently.run(50, i -> () ->
-                orderService.placeOrder("user-1", key, PRODUCT_ID));
+                orderService.placeOrder("user-1", key, direct(PRODUCT_ID)));
 
         assertThat(results).allMatch(r -> r instanceof Order);
         Set<UUID> orderIds = results.stream().map(r -> ((Order) r).getId()).collect(Collectors.toSet());
@@ -57,8 +54,8 @@ class IdempotencyTest {
     void sameKeyFromAnotherUserIsADifferentOrder() {
         String key = UUID.randomUUID().toString();
 
-        Order first = orderService.placeOrder("user-1", key, PRODUCT_ID);
-        Order second = orderService.placeOrder("user-2", key, PRODUCT_ID);
+        Order first = orderService.placeOrder("user-1", key, direct(PRODUCT_ID));
+        Order second = orderService.placeOrder("user-2", key, direct(PRODUCT_ID));
 
         assertThat(first.getId()).isNotEqualTo(second.getId());
         assertThat(data.availableStock(PRODUCT_ID)).isEqualTo(98);
@@ -67,10 +64,14 @@ class IdempotencyTest {
     @Test
     void reusingAKeyForADifferentRequestIsRejected() {
         String key = UUID.randomUUID().toString();
-        orderService.placeOrder("user-1", key, PRODUCT_ID);
+        orderService.placeOrder("user-1", key, direct(PRODUCT_ID));
 
-        assertThatThrownBy(() -> orderService.placeOrder("user-1", key, 2L))
+        assertThatThrownBy(() -> orderService.placeOrder("user-1", key, direct(2L)))
                 .isInstanceOf(IdempotencyKeyReusedException.class);
         assertThat(data.availableStock(PRODUCT_ID)).isEqualTo(99);
+    }
+
+    static PlaceOrderRequest direct(long productId) {
+        return new PlaceOrderRequest(null, productId);
     }
 }

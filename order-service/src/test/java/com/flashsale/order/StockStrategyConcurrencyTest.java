@@ -1,6 +1,7 @@
 package com.flashsale.order;
 
 import com.flashsale.order.exception.SoldOutException;
+import com.flashsale.order.controller.PlaceOrderRequest;
 import com.flashsale.order.service.OrderService;
 import com.flashsale.order.service.stock.StockService;
 import com.flashsale.order.support.Concurrently;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,13 +31,10 @@ public abstract class StockStrategyConcurrencyTest {
     StockService stockService;
 
     @Autowired
-    JdbcTemplate jdbc;
-
     TestData data;
 
     @BeforeEach
     void setUp() {
-        data = new TestData(jdbc);
         data.reset();
     }
 
@@ -45,7 +42,7 @@ public abstract class StockStrategyConcurrencyTest {
     void sellsExactlyTheAvailableStock() throws Exception {
         long start = System.nanoTime();
         List<Object> results = Concurrently.run(BUYERS, i -> () ->
-                orderService.placeOrder("user-" + i, UUID.randomUUID().toString(), PRODUCT_ID));
+                orderService.placeOrder("user-" + i, UUID.randomUUID().toString(), direct(PRODUCT_ID)));
         long millis = (System.nanoTime() - start) / 1_000_000;
 
         long soldOut = results.stream().filter(r -> r instanceof SoldOutException).count();
@@ -58,5 +55,9 @@ public abstract class StockStrategyConcurrencyTest {
         assertThat(data.orderCount()).isEqualTo(STOCK);
         assertThat(data.availableStock(PRODUCT_ID)).isZero();
         assertThat(soldOut).isEqualTo(BUYERS - STOCK);
+    }
+
+    static PlaceOrderRequest direct(long productId) {
+        return new PlaceOrderRequest(null, productId);
     }
 }

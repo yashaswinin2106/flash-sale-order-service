@@ -2,7 +2,6 @@ package com.flashsale.order.controller;
 
 import com.flashsale.order.domain.Order;
 import com.flashsale.order.service.OrderService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +28,8 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse placeOrder(@RequestHeader("X-User-Id") String userId,
                                     @RequestHeader("Idempotency-Key") String idempotencyKey,
-                                    @Valid @RequestBody PlaceOrderRequest request) {
-        Order order = orderService.placeOrder(userId, idempotencyKey, request.productId());
+                                    @RequestBody PlaceOrderRequest request) {
+        Order order = orderService.placeOrder(userId, idempotencyKey, request);
         return OrderResponse.from(order);
     }
 

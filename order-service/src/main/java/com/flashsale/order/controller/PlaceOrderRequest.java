@@ -1,6 +1,10 @@
 package com.flashsale.order.controller;
 
-import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 
-public record PlaceOrderRequest(@NotNull Long productId) {
+/**
+ * With reservations enabled (the default) send reservationId.
+ * With reservations disabled send productId and the order goes straight to Postgres.
+ */
+public record PlaceOrderRequest(UUID reservationId, Long productId) {
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.http.HttpResponse;
 import java.util.Map;
@@ -19,8 +18,10 @@ import java.util.regex.Pattern;
 import static com.flashsale.order.support.TestData.PRODUCT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** POST /orders in direct mode, without the reservation step. */
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "flashsale.reservations.enabled=false")
 class OrderControllerTest {
 
     private static final Pattern ORDER_ID = Pattern.compile("\"orderId\":\"([0-9a-f-]+)\"");
@@ -29,15 +30,13 @@ class OrderControllerTest {
     int port;
 
     @Autowired
-    JdbcTemplate jdbc;
+    TestData data;
 
     Http http;
-    TestData data;
 
     @BeforeEach
     void setUp() {
         http = new Http(port);
-        data = new TestData(jdbc);
         data.reset();
     }
 

@@ -20,8 +20,18 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.CONFLICT, ex);
     }
 
-    @ExceptionHandler(SaleNotOpenException.class)
-    public ProblemDetail handleSaleNotOpen(SaleNotOpenException ex) {
+    @ExceptionHandler(ReservationAlreadyUsedException.class)
+    public ProblemDetail handleAlreadyUsed(ReservationAlreadyUsedException ex) {
+        return problem(HttpStatus.CONFLICT, ex);
+    }
+
+    @ExceptionHandler(ReservationExpiredException.class)
+    public ProblemDetail handleExpired(ReservationExpiredException ex) {
+        return problem(HttpStatus.GONE, ex);
+    }
+
+    @ExceptionHandler({SaleNotOpenException.class, InvalidRequestException.class})
+    public ProblemDetail handleBadRequest(RuntimeException ex) {
         return problem(HttpStatus.BAD_REQUEST, ex);
     }
 
