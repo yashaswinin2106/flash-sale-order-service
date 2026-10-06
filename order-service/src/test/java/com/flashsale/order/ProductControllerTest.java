@@ -1,9 +1,13 @@
 package com.flashsale.order;
 
+import com.flashsale.order.support.TestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,7 +23,15 @@ class ProductControllerTest {
     @Value("${local.server.port}")
     int port;
 
+    @Autowired
+    JdbcTemplate jdbc;
+
     private final HttpClient http = HttpClient.newHttpClient();
+
+    @BeforeEach
+    void resetData() {
+        new TestData(jdbc).reset();
+    }
 
     private HttpResponse<String> get(String path) throws Exception {
         HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET().build();

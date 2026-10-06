@@ -30,9 +30,8 @@ public class Product {
     @Column(name = "available_stock", nullable = false)
     private int availableStock;
 
-    // Deliberately NOT annotated with @Version. JPA would otherwise add
-    // optimistic locking to every update and hide the naive oversell in layer 1.
-    // The optimistic strategy will use this column explicitly in its own query.
+    // Not a JPA @Version field: stock is always changed through explicit SQL,
+    // and the optimistic strategy checks this column in its own UPDATE.
     @Column(nullable = false)
     private int version;
 
@@ -44,6 +43,10 @@ public class Product {
 
     protected Product() {
         // for JPA
+    }
+
+    public boolean isSaleOpen(OffsetDateTime now) {
+        return !now.isBefore(saleStartsAt) && now.isBefore(saleEndsAt);
     }
 
     public Long getId() { return id; }
