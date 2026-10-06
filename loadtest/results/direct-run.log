@@ -1,0 +1,240 @@
+=== NAIVE ===
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5000    377.905181/s
+    checks_succeeded...: 100.00% 5000 out of 5000
+    checks_failed......: 0.00%   0 out of 5000
+
+    ✓ order accepted or sold out
+
+    CUSTOM
+    orders_created.................: 1286   97.197213/s
+    orders_sold_out................: 3714   280.707969/s
+
+    HTTP
+    http_req_duration..............: avg=525.07ms min=3.37ms med=246.25ms p(95)=1.88s p(99)=2.59s max=4.21s
+      { expected_response:true }...: avg=525.07ms min=3.37ms med=246.25ms p(95)=1.88s p(99)=2.59s max=4.21s
+    http_req_failed................: 0.00%  0 out of 5000
+    http_reqs......................: 5000   377.905181/s
+
+    EXECUTION
+    iteration_duration.............: avg=531.91ms min=3.68ms med=247.06ms p(95)=1.9s  p(99)=2.63s max=4.21s
+    iterations.....................: 5000   377.905181/s
+    vus............................: 200    min=200       max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.3 MB 96 kB/s
+    data_sent......................: 1.2 MB 91 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |   1286
+(1 row)
+
+ total_stock | available_stock 
+-------------+-----------------
+         100 |               0
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+=== PESSIMISTIC ===
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5000    517.133856/s
+    checks_succeeded...: 100.00% 5000 out of 5000
+    checks_failed......: 0.00%   0 out of 5000
+
+    ✓ order accepted or sold out
+
+    CUSTOM
+    orders_created.................: 100    10.342677/s
+    orders_sold_out................: 4900   506.791179/s
+
+    HTTP
+    http_req_duration..............: avg=378.92ms min=3.67ms med=308.73ms p(95)=1.04s p(99)=1.48s max=2.56s
+      { expected_response:true }...: avg=378.92ms min=3.67ms med=308.73ms p(95)=1.04s p(99)=1.48s max=2.56s
+    http_req_failed................: 0.00%  0 out of 5000
+    http_reqs......................: 5000   517.133856/s
+
+    EXECUTION
+    iteration_duration.............: avg=380.84ms min=4.05ms med=309.4ms  p(95)=1.05s p(99)=1.48s max=2.56s
+    iterations.....................: 5000   517.133856/s
+    vus............................: 200    min=200       max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.1 MB 119 kB/s
+    data_sent......................: 1.2 MB 124 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+(1 row)
+
+ total_stock | available_stock 
+-------------+-----------------
+         100 |               0
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+=== ATOMIC ===
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5000    767.907935/s
+    checks_succeeded...: 100.00% 5000 out of 5000
+    checks_failed......: 0.00%   0 out of 5000
+
+    ✓ order accepted or sold out
+
+    CUSTOM
+    orders_created.................: 100    15.358159/s
+    orders_sold_out................: 4900   752.549776/s
+
+    HTTP
+    http_req_duration..............: avg=255.26ms min=4.56ms med=189.18ms p(95)=799.36ms p(99)=1.38s max=1.98s
+      { expected_response:true }...: avg=255.26ms min=4.56ms med=189.18ms p(95)=799.36ms p(99)=1.38s max=1.98s
+    http_req_failed................: 0.00%  0 out of 5000
+    http_reqs......................: 5000   767.907935/s
+
+    EXECUTION
+    iteration_duration.............: avg=257.19ms min=4.84ms med=189.52ms p(95)=804.81ms p(99)=1.44s max=2.07s
+    iterations.....................: 5000   767.907935/s
+    vus............................: 200    min=200       max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.1 MB 176 kB/s
+    data_sent......................: 1.2 MB 185 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+(1 row)
+
+ total_stock | available_stock 
+-------------+-----------------
+         100 |               0
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+=== OPTIMISTIC ===
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5000    746.510198/s
+    checks_succeeded...: 100.00% 5000 out of 5000
+    checks_failed......: 0.00%   0 out of 5000
+
+    ✓ order accepted or sold out
+
+    CUSTOM
+    orders_created.................: 100    14.930204/s
+    orders_sold_out................: 4900   731.579994/s
+
+    HTTP
+    http_req_duration..............: avg=262.13ms min=4.43ms med=196.33ms p(95)=768.08ms p(99)=1.47s max=1.85s
+      { expected_response:true }...: avg=262.13ms min=4.43ms med=196.33ms p(95)=768.08ms p(99)=1.47s max=1.85s
+    http_req_failed................: 0.00%  0 out of 5000
+    http_reqs......................: 5000   746.510198/s
+
+    EXECUTION
+    iteration_duration.............: avg=263.01ms min=4.65ms med=196.6ms  p(95)=768.5ms  p(99)=1.49s max=1.85s
+    iterations.....................: 5000   746.510198/s
+    vus............................: 200    min=200       max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.1 MB 171 kB/s
+    data_sent......................: 1.2 MB 179 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+(1 row)
+
+ total_stock | available_stock 
+-------------+-----------------
+         100 |               0
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+

@@ -21,6 +21,7 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/flashsale
       DB_USER: flashsale
       DB_PASSWORD: flashsale
+      STOCK_STRATEGY: ${STOCK_STRATEGY:-ATOMIC}
     ports:
       - "8080:8080"
     depends_on:
