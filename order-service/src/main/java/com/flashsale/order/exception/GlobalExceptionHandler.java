@@ -1,5 +1,6 @@
 package com.flashsale.order.exception;
 
+import com.flashsale.order.service.stock.StockContentionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,6 +23,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SaleNotOpenException.class)
     public ProblemDetail handleSaleNotOpen(SaleNotOpenException ex) {
         return problem(HttpStatus.BAD_REQUEST, ex);
+    }
+
+    @ExceptionHandler(StockContentionException.class)
+    public ProblemDetail handleContention(StockContentionException ex) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, ex);
     }
 
     private static ProblemDetail problem(HttpStatus status, RuntimeException ex) {

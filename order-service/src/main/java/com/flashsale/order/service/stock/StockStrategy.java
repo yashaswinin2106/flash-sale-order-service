@@ -6,6 +6,8 @@ package com.flashsale.order.service.stock;
  */
 public interface StockStrategy {
 
+    StockStrategyType type();
+
     /** Returns true if the units were taken, false if there is not enough stock. */
     boolean tryDecrement(long productId, int quantity);
 }

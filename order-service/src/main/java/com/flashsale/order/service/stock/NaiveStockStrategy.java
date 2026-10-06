@@ -17,6 +17,11 @@ public class NaiveStockStrategy implements StockStrategy {
     }
 
     @Override
+    public StockStrategyType type() {
+        return StockStrategyType.NAIVE;
+    }
+
+    @Override
     public boolean tryDecrement(long productId, int quantity) {
         Integer available = jdbc.queryForObject(
                 "SELECT available_stock FROM products WHERE id = ?", Integer.class, productId);

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Shows the lost-update problem: read-check-write without a lock sells more than the stock. */
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(properties = "flashsale.stock.strategy=NAIVE")
 class NaiveOversellTest {
 
     @Autowired
