@@ -25,6 +25,11 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, ex);
     }
 
+    @ExceptionHandler(IdempotencyKeyReusedException.class)
+    public ProblemDetail handleKeyReused(IdempotencyKeyReusedException ex) {
+        return problem(HttpStatus.UNPROCESSABLE_CONTENT, ex);
+    }
+
     @ExceptionHandler(StockContentionException.class)
     public ProblemDetail handleContention(StockContentionException ex) {
         return problem(HttpStatus.SERVICE_UNAVAILABLE, ex);

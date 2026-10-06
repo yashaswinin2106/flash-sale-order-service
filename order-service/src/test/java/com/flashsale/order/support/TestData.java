@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class TestData {
 
     public static final long PRODUCT_ID = 1L;
+    public static final int SEEDED_STOCK = 100;
 
     private final JdbcTemplate jdbc;
 
@@ -15,7 +16,7 @@ public class TestData {
 
     public void reset() {
         jdbc.execute("TRUNCATE payments, orders");
-        jdbc.update("UPDATE products SET available_stock = total_stock, version = 0");
+        jdbc.update("UPDATE products SET total_stock = ?, available_stock = ?, version = 0", SEEDED_STOCK, SEEDED_STOCK);
     }
 
     public void setStock(long productId, int stock) {
