@@ -23,9 +23,9 @@ flowchart LR
     kafka{{Kafka}}
     worker[payment-worker]
 
-    buyer -- "1. POST /reservations" --> api
+    buyer -- "POST /reservations (step 1)" --> api
     api -- "Lua: decrement counter, hold unit" --> redis
-    buyer -- "2. POST /orders" --> api
+    buyer -- "POST /orders (step 2)" --> api
     api -- "claim reservation" --> redis
     api -- "decrement stock, insert order" --> pg
     api -- "order.created" --> kafka
@@ -34,7 +34,7 @@ flowchart LR
     worker -- "payment.result" --> kafka
     kafka --> settle
     settle -- "CONFIRMED / FAILED" --> pg
-    buyer -- "3. GET /orders/{id}" --> api
+    buyer -- "GET /orders/{id} (step 5)" --> api
     sweeper -- "release expired holds" --> redis
     recovery -- "republish stuck orders" --> kafka
 ```
@@ -111,7 +111,7 @@ cd order-service && ./mvnw test     # 36 tests
 cd payment-worker && ./mvnw test    # 7 tests
 ```
 
-The tests use Testcontainers, so Docker must be running. They include concurrency tests that
+The tests need JDK 21 or later, and Docker running for Testcontainers. They include concurrency tests that
 fire many requests at once at each stock strategy, and end-to-end tests of the reservation,
 idempotency and payment flows.
 
