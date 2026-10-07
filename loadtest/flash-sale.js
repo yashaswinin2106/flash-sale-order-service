@@ -20,6 +20,12 @@ const timeToSettle = new Trend('time_to_settle', true);
 
 export const options = {
   summaryTrendStats: ['avg', 'min', 'med', 'p(95)', 'p(99)', 'max'],
+  // Thresholds on tagged sub-metrics make k6 report latency per step in the summary.
+  thresholds: {
+    'http_req_duration{step:reserve}': ['p(99)<10000'],
+    'http_req_duration{step:order}': ['p(99)<10000'],
+    'http_req_duration{step:poll}': ['p(99)<10000'],
+  },
   scenarios: {
     buyers: {
       executor: 'shared-iterations',

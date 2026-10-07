@@ -41,7 +41,8 @@ run() {
   wait_for_service
 
   loadtest/reset.sh
-  k6 -e BUYERS=2000 -e VUS="$VUS" "/scripts/$script" > /dev/null
+  # Warm-up pass so the JIT and connection pools are ready. Its thresholds do not matter.
+  k6 -e BUYERS=2000 -e VUS="$VUS" "/scripts/$script" > /dev/null || true
   wait_for_settled
 
   loadtest/reset.sh
@@ -50,5 +51,9 @@ run() {
   loadtest/check.sh
 }
 
-run sale-with-reservations true flash-sale.js
-run sale-without-reservations false direct-order.js
+for mode in ${MODES:-with without}; do
+  case "$mode" in
+    with) run sale-with-reservations true flash-sale.js ;;
+    without) run sale-without-reservations false direct-order.js ;;
+  esac
+done

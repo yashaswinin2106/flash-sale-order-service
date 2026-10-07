@@ -21,5 +21,9 @@ for f in files:
     d = m["http_req_duration"]
     counters = ", ".join(f"{k}={int(v['count'])}" for k, v in sorted(m.items())
                          if k not in BUILT_IN and "count" in v)
+    steps = [(k.split("step:")[1].rstrip("}"), v) for k, v in sorted(m.items())
+             if k.startswith("http_req_duration{step:")]
     print(f"| {f.stem} | {m['http_reqs']['rate']:.0f} | {d['med']:.0f} | {d['p(95)']:.0f} "
           f"| {d['p(99)']:.0f} | {counters} |")
+    for step, v in steps:
+        print(f"| {f.stem} / {step} | | {v['med']:.0f} | {v['p(95)']:.0f} | {v['p(99)']:.0f} | |")
