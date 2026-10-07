@@ -1,0 +1,169 @@
+=== sale-with-reservations ===
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-redis-1 Running 
+ Container flash_sale-kafka-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-redis-1 Waiting 
+ Container flash_sale-kafka-1 Waiting 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-kafka-1 Healthy 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-redis-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+time="2026-10-07T12:44:25Z" level=error msg="thresholds on metrics 'http_req_duration{step:order}' have been crossed"
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{step:order}
+    ✓ 'p(99)<10000' p(99)=5.58s
+
+    http_req_duration{step:poll}
+    ✓ 'p(99)<10000' p(99)=3.01s
+
+    http_req_duration{step:reserve}
+    ✓ 'p(99)<10000' p(99)=1.22s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 214     13.917171/s
+    checks_succeeded...: 100.00% 214 out of 214
+    checks_failed......: 0.00%   0 out of 214
+
+    ✓ reserved
+    ✓ order accepted
+
+    CUSTOM
+    orders_accepted................: 107    6.958586/s
+    orders_confirmed...............: 100    6.503351/s
+    orders_failed..................: 7      0.455235/s
+    reservations_created...........: 107    6.958586/s
+    reservations_sold_out..........: 4893   318.208965/s
+    time_to_settle.................: avg=6.06s    min=413ms   med=5.83s    p(95)=8.39s p(99)=8.7s  max=8.83s 
+
+    HTTP
+    http_req_duration..............: avg=377.73ms min=2.68ms  med=184.4ms  p(95)=1.09s p(99)=2.75s max=5.71s 
+      { expected_response:true }...: avg=377.73ms min=2.68ms  med=184.4ms  p(95)=1.09s p(99)=2.75s max=5.71s 
+      { step:order }...............: avg=2.46s    min=51.76ms med=2.35s    p(95)=4.93s p(99)=5.58s max=5.71s 
+      { step:poll }................: avg=241.12ms min=2.68ms  med=73.39ms  p(95)=1.1s  p(99)=3.01s max=4.36s 
+      { step:reserve }.............: avg=372.65ms min=4.01ms  med=285.17ms p(95)=1.03s p(99)=1.22s max=1.48s 
+    http_req_failed................: 0.00%  0 out of 6555
+    http_reqs......................: 6555   426.294658/s
+
+    EXECUTION
+    iteration_duration.............: avg=558.16ms min=4.31ms  med=315.94ms p(95)=1.12s p(99)=8.65s max=14.09s
+    iterations.....................: 5000   325.16755/s
+    vus............................: 3      min=3         max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.7 MB 113 kB/s
+    data_sent......................: 1.2 MB 76 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+ FAILED    |      7
+(2 rows)
+
+ total_stock | available_stock | sold_or_pending | accounted 
+-------------+-----------------+-----------------+-----------
+         100 |               0 |             100 |       100
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+ orders_without_payment 
+------------------------
+                      0
+(1 row)
+
+redis stock:1            = 0
+redis open reservations  = 0
+=== sale-without-reservations ===
+ Container flash_sale-redis-1 Running 
+ Container flash_sale-postgres-1 Running 
+ Container flash_sale-kafka-1 Running 
+ Container flash_sale-order-service-1 Recreate 
+ Container flash_sale-order-service-1 Recreated 
+ Container flash_sale-redis-1 Waiting 
+ Container flash_sale-kafka-1 Waiting 
+ Container flash_sale-postgres-1 Waiting 
+ Container flash_sale-postgres-1 Healthy 
+ Container flash_sale-redis-1 Healthy 
+ Container flash_sale-kafka-1 Healthy 
+ Container flash_sale-order-service-1 Starting 
+ Container flash_sale-order-service-1 Started 
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5000    324.168463/s
+    checks_succeeded...: 100.00% 5000 out of 5000
+    checks_failed......: 0.00%   0 out of 5000
+
+    ✓ order accepted or sold out
+
+    CUSTOM
+    orders_created.................: 113    7.326207/s
+    orders_sold_out................: 4887   316.842256/s
+
+    HTTP
+    http_req_duration..............: avg=605.9ms  min=4.32ms med=367.55ms p(95)=2.16s p(99)=3.29s max=6.28s
+      { expected_response:true }...: avg=605.9ms  min=4.32ms med=367.55ms p(95)=2.16s p(99)=3.29s max=6.28s
+    http_req_failed................: 0.00%  0 out of 5000
+    http_reqs......................: 5000   324.168463/s
+
+    EXECUTION
+    iteration_duration.............: avg=611.12ms min=4.68ms med=370.27ms p(95)=2.16s p(99)=3.47s max=6.5s 
+    iterations.....................: 5000   324.168463/s
+    vus............................: 200    min=200       max=200
+    vus_max........................: 200    min=200       max=200
+
+    NETWORK
+    data_received..................: 1.1 MB 74 kB/s
+    data_sent......................: 1.2 MB 78 kB/s
+
+
+
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+ FAILED    |     13
+(2 rows)
+
+ total_stock | available_stock | sold_or_pending | accounted 
+-------------+-----------------+-----------------+-----------
+         100 |               0 |             100 |       100
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+ orders_without_payment 
+------------------------
+                      0
+(1 row)
+
+redis stock:1            = 100
+redis open reservations  = 0
