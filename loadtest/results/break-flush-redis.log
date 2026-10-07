@@ -1,0 +1,86 @@
+=== flush-redis ===
+>>> flushing Redis
+OK
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{step:order}
+    ✓ 'p(99)<10000' p(99)=8.78s
+
+    http_req_duration{step:poll}
+    ✓ 'p(99)<10000' p(99)=4.53s
+
+    http_req_duration{step:reserve}
+    ✓ 'p(99)<10000' p(99)=3.2s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 432    18.526218/s
+    checks_succeeded...: 76.85% 332 out of 432
+    checks_failed......: 23.14% 100 out of 432
+
+    ✓ reserved
+    ✗ order accepted
+      ↳  53% — ✓ 116 / ✗ 100
+
+    CUSTOM
+    orders_accepted................: 116    4.974633/s
+    orders_confirmed...............: 100    4.288476/s
+    orders_failed..................: 16     0.686156/s
+    other_errors...................: 100    4.288476/s
+    reservations_created...........: 216    9.263109/s
+    reservations_sold_out..........: 4784   205.160715/s
+    time_to_settle.................: avg=5.19s    min=233ms  med=4.98s    p(95)=7.59s p(99)=7.91s  max=8.26s 
+
+    HTTP
+    http_req_duration..............: avg=702.2ms  min=4.86ms med=265.99ms p(95)=3.29s p(99)=6.75s  max=11.51s
+      { expected_response:true }...: avg=565.56ms min=4.86ms med=250.5ms  p(95)=1.89s p(99)=4.68s  max=10.27s
+      { step:order }...............: avg=3.41s    min=27ms   med=3.75s    p(95)=7.4s  p(99)=8.78s  max=11.51s
+      { step:poll }................: avg=488.79ms min=8.9ms  med=133.36ms p(95)=2.95s p(99)=4.53s  max=6.95s 
+      { step:reserve }.............: avg=513.99ms min=4.86ms med=284.88ms p(95)=1.57s p(99)=3.2s   max=10.27s
+    http_req_failed................: 4.77%  300 out of 6286
+    http_reqs......................: 6286   269.573631/s
+
+    EXECUTION
+    iteration_duration.............: avg=926.15ms min=5.09ms med=295.01ms p(95)=2.84s p(99)=13.93s max=15.69s
+    iterations.....................: 5000   214.423824/s
+    vus............................: 200    min=200         max=200
+    vus_max........................: 200    min=200         max=200
+
+    NETWORK
+    data_received..................: 1.6 MB 69 kB/s
+    data_sent......................: 1.2 MB 50 kB/s
+
+
+
+>>> all orders settled 2s after the sale ended
+  status   | orders 
+-----------+--------
+ CONFIRMED |    100
+ FAILED    |     16
+(2 rows)
+
+ total_stock | available_stock | sold_or_pending | accounted 
+-------------+-----------------+-----------------+-----------
+         100 |               0 |             100 |       100
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+ orders_without_payment 
+------------------------
+                      0
+(1 row)
+
+redis stock:1            = 0
+redis open reservations  = 0

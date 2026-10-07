@@ -1,0 +1,82 @@
+=== stop-kafka ===
+>>> stopping Kafka for 60 seconds
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{step:order}
+    ✓ 'p(99)<10000' p(99)=8.63s
+
+    http_req_duration{step:poll}
+    ✓ 'p(99)<10000' p(99)=167.37ms
+
+    http_req_duration{step:reserve}
+    ✓ 'p(99)<10000' p(99)=1.03s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 200     5.113895/s
+    checks_succeeded...: 100.00% 200 out of 200
+    checks_failed......: 0.00%   0 out of 200
+
+    ✓ reserved
+    ✓ order accepted
+
+    CUSTOM
+    orders_accepted................: 100    2.556947/s
+    orders_unsettled...............: 100    2.556947/s
+    reservations_created...........: 100    2.556947/s
+    reservations_sold_out..........: 4900   125.290422/s
+
+    HTTP
+    http_req_duration..............: avg=114.77ms min=720.43µs med=7ms      p(95)=480.7ms  p(99)=1.06s    max=8.64s 
+      { expected_response:true }...: avg=114.77ms min=720.43µs med=7ms      p(95)=480.7ms  p(99)=1.06s    max=8.64s 
+      { step:order }...............: avg=4.39s    min=273.25ms med=4.31s    p(95)=8.48s    p(99)=8.63s    max=8.64s 
+      { step:poll }................: avg=31.02ms  min=720.43µs med=3.19ms   p(95)=69ms     p(99)=167.37ms max=5.75s 
+      { step:reserve }.............: avg=245.42ms min=3.41ms   med=182.73ms p(95)=811.38ms p(99)=1.03s    max=1.39s 
+    http_req_failed................: 0.00%  0 out of 18013
+    http_reqs......................: 18013  460.582933/s
+
+    EXECUTION
+    iteration_duration.............: avg=936.12ms min=3.8ms    med=187.67ms p(95)=934.1ms  p(99)=34.62s   max=38.96s
+    iterations.....................: 5000   127.847369/s
+    vus............................: 6      min=6          max=200
+    vus_max........................: 200    min=200        max=200
+
+    NETWORK
+    data_received..................: 5.9 MB 151 kB/s
+    data_sent......................: 2.8 MB 73 kB/s
+
+
+
+>>> Kafka is back
+>>> all orders settled 63s after the sale ended
+  status   | orders 
+-----------+--------
+ CONFIRMED |     95
+ FAILED    |      5
+(2 rows)
+
+ total_stock | available_stock | sold_or_pending | accounted 
+-------------+-----------------+-----------------+-----------
+         100 |               5 |              95 |       100
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+ orders_without_payment 
+------------------------
+                      0
+(1 row)
+
+redis stock:1            = 5
+redis open reservations  = 0

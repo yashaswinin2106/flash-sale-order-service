@@ -1,0 +1,83 @@
+=== kill-order-service ===
+>>> killing order-service
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{step:order}
+    ✓ 'p(99)<10000' p(99)=448.61ms
+
+    http_req_duration{step:poll}
+    ✓ 'p(99)<10000' p(99)=0s
+
+    http_req_duration{step:reserve}
+    ✓ 'p(99)<10000' p(99)=2.88s
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 5051   201.819407/s
+    checks_succeeded...: 1.00%  51 out of 5051
+    checks_failed......: 98.99% 5000 out of 5051
+
+    ✗ reserved
+      ↳  1% — ✓ 51 / ✗ 4949
+    ✗ order accepted
+      ↳  0% — ✓ 0 / ✗ 51
+
+    CUSTOM
+    other_errors...................: 5000   199.781634/s
+    reservations_created...........: 51     2.037773/s
+
+    HTTP
+    http_req_duration..............: avg=109.91ms min=0s       med=0s      p(95)=0s       p(99)=2.88s    max=2.97s   
+      { expected_response:true }...: avg=2.56s    min=2.3s     med=2.55s   p(95)=2.72s    p(99)=2.75s    max=2.76s   
+      { step:order }...............: avg=69.82ms  min=0s       med=0s      p(95)=375.22ms p(99)=448.61ms max=458.97ms
+      { step:poll }................: avg=0s       min=0s       med=0s      p(95)=0s       p(99)=0s       max=0s      
+      { step:reserve }.............: avg=111.14ms min=0s       med=0s      p(95)=0s       p(99)=2.88s    max=2.97s   
+    http_req_failed................: 99.01% 5102 out of 5153
+    http_reqs......................: 5153   205.894952/s
+
+    EXECUTION
+    iteration_duration.............: avg=997.7ms  min=333.47µs med=87.23ms p(95)=3.17s    p(99)=19.56s   max=19.59s  
+    iterations.....................: 5000   199.781634/s
+    vus............................: 200    min=200          max=200
+    vus_max........................: 200    min=200          max=200
+
+    NETWORK
+    data_received..................: 14 kB  559 B/s
+    data_sent......................: 55 kB  2.2 kB/s
+
+
+
+>>> order-service is back
+>>> all orders settled 2s after the sale ended
+ status | orders 
+--------+--------
+(0 rows)
+
+ total_stock | available_stock | sold_or_pending | accounted 
+-------------+-----------------+-----------------+-----------
+         100 |             100 |               0 |       100
+(1 row)
+
+ duplicate_orders 
+------------------
+                0
+(1 row)
+
+ orders_with_two_payments 
+--------------------------
+                        0
+(1 row)
+
+ orders_without_payment 
+------------------------
+                      0
+(1 row)
+
+redis stock:1            = 100
+redis open reservations  = 0
+>>> waiting for abandoned reservations to expire
+redis stock:1            = 100
+postgres available_stock = 100
